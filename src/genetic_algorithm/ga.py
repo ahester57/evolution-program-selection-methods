@@ -6,6 +6,7 @@ import time
 from collections import deque
 
 from chromosome import Chromosome
+from selection_mechanism import proportional
 
 
 class GA:
@@ -24,7 +25,7 @@ class GA:
         rand_seed (int): Seed given to RNG calculated from parameters.
         population (tuple of Chromosome): Collection of current generation's individual chromosomes.
         fitness_function (lambda): The "fitness function" or "objective function."
-        maximize (bool): (False)[minimize]; (True)[maximize]. Default False.
+        maximize (bool): (False)[minimize]; (True)[maximize]. Default True.
     """
 
     def __init__(
@@ -35,10 +36,10 @@ class GA:
         pop_size=30,
         p_c=0.8,
         p_m=0.1,
-        t_max=500000,
+        t_max=50,
         rand_seed=None,
         fitness_function=lambda genes : sum([x**2 for x in genes]),
-        maximize=False
+        maximize=True
     ) -> None:
         """
         Initialize the parameters for a genetic algorithm.
@@ -53,7 +54,7 @@ class GA:
             t_max (int, optional): Maximum iterations/generations. Defaults to 50.
             rand_seed(int, optional): Seed for random number generator.
             fitness_function (lambda, optional): Function of \vec{x}. Returns (float).
-            maximize (bool, optional): (False)[minimize]; (True)[maximize]. Default False.
+            maximize (bool, optional): (False)[minimize]; (True)[maximize]. Default True.
         """
         assert dims > 0
         assert pop_size > 0
@@ -99,21 +100,17 @@ class GA:
         Returns:
             tuple of Chromosome: The proposed next generation of the population.
         """
-        return self.gene_wise_mutation(self.single_point_crossover(self.proportional_selection()))
+        return self.gene_wise_mutation(self.single_point_crossover(self.selection_mechanism()))
 
-    def proportional_selection(self) -> tuple[Chromosome]:
-        """Perform proportional selection with replacement on the population using fitness scores for weights.
+    def selection_mechanism(self) -> tuple[Chromosome]:
+        """Perform selection on the population.
 
         Returns:
-            tuple of Chromosome: A new population after a round of proportional selection.
+            tuple of Chromosome: A new population after a round of selection.
         """
-        weights = [c.fitness_score / self.sum_of_population_fitness for c in self.population]
-        if not self.maximize:
-            # Minimizing, invert the weights
-            tmp_weights = [1.0 / w for w in weights]
-            sum_tmp_weights = sum(tmp_weights)
-            weights = [tw / sum_tmp_weights for tw in tmp_weights]
-        return tuple(random.choices(self.population, weights=weights, k=self.pop_size))
+        Chosen_Mechanism = [proportional.Proportional][0]
+        mechanism = Chosen_Mechanism(tuple(c.fitness_score for c in self.population), self.sum_of_population_fitness, self.maximize)
+        return tuple(self.population[i] for i in mechanism.next_population())
 
     def single_point_crossover(self, population) -> tuple[Chromosome]:
         """Perform single cut-point crossover on the population using self.p_c as probability of occurrence.
