@@ -39,16 +39,22 @@ class Proportional(SelectionMechanism):
         """
         return self._sample_from_pmf(self._generate_pmf())
 
-    def _generate_pmf(self) -> list[float]:
+    def _generate_pmf(self) -> tuple[float]:
         """Generate a probability mass function for given fitnesses.
 
         Returns:
             tuple of float: A population-sized list containing respective probablities of selection.
         """
         assert self.sum_of_fitnesses > 0
-        return tuple(f / self.sum_of_fitnesses for f in self.population_fitnesses)
+        pmf = tuple(f / self.sum_of_fitnesses for f in self.population_fitnesses)
+        if not self.maximize:
+            # Minimizing, invert the weights
+            inv_pmf = [1.0 / w for w in pmf]
+            sum_inv_pmf = sum(inv_pmf)
+            pmf = tuple(tw / sum_inv_pmf for tw in inv_pmf)
+        return pmf
 
-    def _sample_from_pmf(self, pmf) -> tuple[int]:
+    def _sample_from_pmf(self, pmf:tuple[float]) -> tuple[int]:
         """Generate a new index-defined population by stochastic choice based on the given pmf.
 
         Args:
@@ -57,11 +63,6 @@ class Proportional(SelectionMechanism):
         Returns:
             tuple of int: A population-sized list containing indices of chosen individuals.
         """
-        if not self.maximize:
-            # Minimizing, invert the weights
-            inv_pmf = [1.0 / w for w in pmf]
-            sum_inv_pmf = sum(inv_pmf)
-            pmf = [tw / sum_inv_pmf for tw in inv_pmf]
         return tuple(random.choices(range(self.pop_size), weights=pmf, k=self.pop_size))
 
     @staticmethod
