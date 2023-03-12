@@ -21,7 +21,6 @@ class Truncation(SelectionMechanism):
             population_fitnesses (tuple of float): The population fitness scores, in order.
             sum_of_fitnesses (float): The sum of the populations' fitness scores.
             maximize (bool): (False)[minimize]; (True)[maximize]. Default True.
-            pop_size (int): The size of the population.
             tao (float): The cut-line. i.e., Select only from top tao%. 
         """
         assert population_fitnesses is not None
@@ -65,5 +64,5 @@ class Truncation(SelectionMechanism):
         return tuple(random.choice(top_tao)[0] for i in range(self.pop_size))
 
     @staticmethod
-    def parameters() -> dict[str:tuple]:
+    def parameters() -> dict[str, tuple]:
         return {'tao': ('Enter Tao (top percent cut-line)', 0.4)}

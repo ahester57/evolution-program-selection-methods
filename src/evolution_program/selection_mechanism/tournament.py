@@ -31,7 +31,7 @@ class DeterministicTournament(SelectionMechanism):
         self.pop_size = len(self.population_fitnesses)
 
     @staticmethod
-    def parameters() -> dict[str:tuple]:
+    def parameters() -> dict[str, tuple]:
         return {}
 
 
@@ -66,5 +66,5 @@ class StochasticTournament(SelectionMechanism):
         self.pop_size = len(self.population_fitnesses)
 
     @staticmethod
-    def parameters() -> dict[str:tuple]:
+    def parameters() -> dict[str, tuple]:
         return {'prob': ('Enter Probability of Fittest Winner', 0.9)}

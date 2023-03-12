@@ -65,5 +65,5 @@ class Proportional(SelectionMechanism):
         return tuple(random.choices(range(self.pop_size), weights=pmf, k=self.pop_size))
 
     @staticmethod
-    def parameters() -> dict[str:tuple]:
+    def parameters() -> dict[str, tuple]:
         return {}

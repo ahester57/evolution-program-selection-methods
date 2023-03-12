@@ -4,7 +4,6 @@ from evolution_program.menu import GAMenu
 
 class App:
     """Simple class to be used as an entrypoint."""
-
     def __init__(self) -> None:
         pass
 

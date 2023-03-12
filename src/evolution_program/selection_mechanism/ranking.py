@@ -21,7 +21,6 @@ class LinearRanking(SelectionMechanism):
             population_fitnesses (tuple of float): The population fitness scores, in order.
             sum_of_fitnesses (float): The sum of the populations' fitness scores.
             maximize (bool): (False)[minimize]; (True)[maximize]. Default True.
-            pop_size (int): The size of the population. 
             max (float): The expected number of the most fit individual in the next generation. [1, 2] - Extinctive.
         """
         assert population_fitnesses is not None
@@ -35,5 +34,5 @@ class LinearRanking(SelectionMechanism):
         self.pop_size = len(self.population_fitnesses)
 
     @staticmethod
-    def parameters() -> dict[str:tuple]:
+    def parameters() -> dict[str, tuple]:
         return {'max': ('Enter Max (from 1 to 2)', 1.2)}

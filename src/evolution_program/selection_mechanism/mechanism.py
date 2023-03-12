@@ -9,5 +9,5 @@ class SelectionMechanism:
         raise NotImplementedError
 
     @property
-    def parameters(self) -> dict[str:tuple]:
+    def parameters(self) -> dict[str, tuple]:
         raise NotImplementedError
