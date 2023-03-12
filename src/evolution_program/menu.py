@@ -113,9 +113,12 @@ Selection Mechanisms
         assert default is None or type(default) is bool
         ans = ''
         while len(ans) == 0 or ans[0] not in 'YyNn':
-            ans = input(self.input_display(name, default))
-            if ans == '' and default is not None and default:
-                ans = 'Y'
+            default_display = 'Y/n'
+            if not default:
+                default_display = 'y/N'
+            ans = input(self.input_display(name, default_display))
+            if ans == '' and default is not None:
+                return default
         return ans[0].upper() == 'Y'
 
     def configure_ga(self) -> GA:
@@ -132,7 +135,7 @@ Selection Mechanisms
                     domain_upper=self.prompt_float('Domain Upper Bound', 4.0),
                     pop_size=self.prompt_int('Population Size', 30),
                     rand_seed=self.prompt_int('Random Seed', random.randint(1, 123456789)),
-                    maximize=self.prompt_bool('Maximize', True),
+                    maximize=self.prompt_bool('Maximize', False),
                     Select_Mechanism=Select_Mechanism,
                     selection_parameters=selection_parameters
                 )

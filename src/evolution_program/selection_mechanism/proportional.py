@@ -14,7 +14,7 @@ class Proportional(SelectionMechanism):
         maximize (bool): (False)[minimize]; (True)[maximize]. Default True.
         pop_size (int): The size of the population.
     """
-    def __init__(self, population_fitnesses, sum_of_fitnesses=None, maximize=True, **kwargs) -> None:
+    def __init__(self, population_fitnesses:tuple[float], sum_of_fitnesses:float=None, maximize:bool=True, **kwargs) -> None:
         """
         Initialize the parameters for proportional selection with replacement.
 

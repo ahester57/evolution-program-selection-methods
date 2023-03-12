@@ -13,7 +13,7 @@ class DeterministicTournament(SelectionMechanism):
         maximize (bool): (False)[minimize]; (True)[maximize]. Default True.
         pop_size (int): The size of the population.
     """
-    def __init__(self, population_fitnesses, sum_of_fitnesses=None, maximize=True, **kwargs) -> None:
+    def __init__(self, population_fitnesses:tuple[float], sum_of_fitnesses:float=None, maximize:bool=True, **kwargs) -> None:
         """
         Initialize the parameters for deterministic tournament selection.
 
@@ -45,7 +45,7 @@ class StochasticTournament(SelectionMechanism):
         pop_size (int): The size of the population.
         prob (float): The probability that the fittest individual wins the round.
     """
-    def __init__(self, population_fitnesses, sum_of_fitnesses=None, maximize=True, **kwargs) -> None:
+    def __init__(self, population_fitnesses:tuple[float], sum_of_fitnesses:float=None, maximize:bool=True, **kwargs) -> None:
         """
         Initialize the parameters for stochastic tournament selection.
 
