@@ -1,5 +1,7 @@
 # ahester57
 
+from typing import Callable
+
 
 class Chromosome:
     """Depicts one individual in the population.
@@ -9,7 +11,7 @@ class Chromosome:
         fitness_score (float): The fitness score
     """
 
-    def __init__(self, alleles=None) -> None:
+    def __init__(self, alleles:tuple[float]) -> None:
         """Depicts one individual in the population.
 
         Args:
@@ -19,11 +21,11 @@ class Chromosome:
         self.alleles = alleles
         self.fitness_score = None
 
-    def evaluate(self, fitness_function=None) -> None:
+    def evaluate(self, fitness_function:Callable) -> None:
         """Perform an evaluation of this chromosome with given fitness function.
 
         Args:
-            fitness_function (lambda): Function of \vec{x}. Returns (float).
+            fitness_function (Callable): Function of \vec{x}. Returns (float).
 
         Returns:
             float: The fitness score.
@@ -36,6 +38,10 @@ class Chromosome:
         return self._fitness_score
 
     @fitness_score.setter
-    def fitness_score(self, value) -> None:
+    def fitness_score(self, value:float) -> None:
         assert value is None or type(value) is float
         self._fitness_score = value
+
+    @property
+    def is_evaluated(self) -> bool:
+        return self.fitness_score is not None

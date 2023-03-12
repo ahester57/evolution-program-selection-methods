@@ -5,9 +5,11 @@ import sys
 import time
 
 from collections import deque
+from typing import Callable
 
 from evolution_program.chromosome import Chromosome
 from evolution_program.population import Population
+from evolution_program.selection_mechanism.mechanism import SelectionMechanism
 from evolution_program.selection_mechanism.proportional import Proportional
 
 
@@ -26,26 +28,25 @@ class GA:
         t_max (int): Maximum iterations/generations. Defaults to 50.
         rand_seed (int): Seed given to RNG calculated from parameters.
         population (Population): Collection of current generation's individual chromosomes.
-        fitness_function (lambda): The "fitness function" or "objective function."
+        fitness_function (Callable): The "fitness function" or "objective function."
         maximize (bool): (False)[minimize]; (True)[maximize]. Default True.
-        Select_Mechanism (type): The selected selection mechanism. Default Proportional.
+        Select_Mechanism (SelectionMechanism): The selected selection mechanism. Default Proportional.
         selection_parameters (dict): The selected selection mechanism parameters.
     """
-
     def __init__(
         self,
-        dims=3,
-        domain_lower=-7.0,
-        domain_upper=4.0,
-        pop_size=30,
-        p_c=0.8,
-        p_m=0.1,
-        t_max=50,
-        rand_seed=None,
-        fitness_function=lambda genes : sum([x**2 for x in genes]),
-        maximize=True,
-        Select_Mechanism=Proportional,
-        selection_parameters={}
+        dims:int=3,
+        domain_lower:float=-7.0,
+        domain_upper:float=4.0,
+        pop_size:int=30,
+        p_c:float=0.8,
+        p_m:float=0.1,
+        t_max:int=50,
+        rand_seed:int=None,
+        fitness_function:Callable=lambda alleles : sum([x**2 for x in alleles]),
+        maximize:bool=True,
+        Select_Mechanism:SelectionMechanism=Proportional,
+        selection_parameters:dict={}
     ) -> None:
         """
         Initialize the parameters for a genetic algorithm.
@@ -59,9 +60,9 @@ class GA:
             p_m (float, optional): Probability of mutation. In range [0, 1]. Defaults to 0.1.
             t_max (int, optional): Maximum iterations/generations. Defaults to 50.
             rand_seed(int, optional): Seed for random number generator.
-            fitness_function (lambda, optional): Function of \vec{x}. Returns (float).
+            fitness_function (Callable, optional): Function of \vec{x}. Returns (float). default sum([x**2 for x in alleles]).
             maximize (bool, optional): (False)[minimize]; (True)[maximize]. Default True.
-            Select_Mechanism (type): The selected selection mechanism. Default Proportional.
+            Select_Mechanism (SelectionMechanism): The selected selection mechanism. Default Proportional.
             selection_parameters (dict, optional): The selected selection mechanism parameters.
         """
         assert dims > 0
@@ -83,7 +84,7 @@ class GA:
         self.population = None
         self.fitness_function = fitness_function
         self.maximize = maximize
-        self.Select_Mechanism = Select_Mechanism
+        self.Select_Mechanism : SelectionMechanism = Select_Mechanism
         self.selection_parameters = selection_parameters
         self.rand_seed = None
         self.seed_random(rand_seed)
@@ -118,14 +119,15 @@ class GA:
         Returns:
             tuple of Chromosome: A new population after a round of selection.
         """
+        assert self.population.is_evaluated
         try:
-            mechanism = self.Select_Mechanism(tuple(c.fitness_score for c in self.population.members), self.population.sum_of_fitnesses, self.maximize, **self.selection_parameters)
+            mechanism : SelectionMechanism = self.Select_Mechanism(tuple(c.fitness_score for c in self.population.members), self.population.sum_of_fitnesses, self.maximize, **self.selection_parameters)
         except NotImplementedError:
             print('Provided Select_Mechanism not supported.')
             sys.exit(1)
         return tuple(self.population.members[i] for i in mechanism.next_population())
 
-    def single_point_crossover(self, population) -> tuple[Chromosome]:
+    def single_point_crossover(self, population:tuple[Chromosome]) -> tuple[Chromosome]:
         """Perform single cut-point crossover on the population using self.p_c as probability of occurrence.
 
         Args:
@@ -148,7 +150,7 @@ class GA:
             next_gen.append(Chromosome(tuple(p2.alleles[0:cut_point] + p1.alleles[cut_point:self.dims])))
         return tuple(next_gen)
 
-    def gene_wise_mutation(self, population) -> tuple[Chromosome]:
+    def gene_wise_mutation(self, population:tuple[Chromosome]) -> tuple[Chromosome]:
         """Perform gene-wise mutation on the population using self.p_m as probability of occurrence.
 
         Args:
@@ -196,7 +198,7 @@ class GA:
             )
         )
 
-    def seed_random(self, given_seed=None) -> None:
+    def seed_random(self, given_seed:int=None) -> None:
         """
         Initialize the random seed using a made-up via hand-waving function.
         
@@ -227,7 +229,7 @@ class GA:
         return self._population
 
     @population.setter
-    def population(self, value) -> None:
+    def population(self, value:Population) -> None:
         assert (value is None and self.pop_size is not None) or len(value.members) == self.pop_size
         self._population = value
 

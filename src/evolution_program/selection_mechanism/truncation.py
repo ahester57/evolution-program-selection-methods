@@ -2,7 +2,10 @@
 
 import random
 
-class Truncation:
+from evolution_program.selection_mechanism.mechanism import SelectionMechanism
+
+
+class Truncation(SelectionMechanism):
     """Facilitates truncation selection with replacement.
 
     Attributes:
@@ -11,7 +14,7 @@ class Truncation:
         maximize (bool): (False)[minimize]; (True)[maximize]. Default True.
         pop_size (int): The size of the population.
     """
-    def __init__(self, population_fitnesses, sum_of_fitnesses=None, maximize=True, **kwargs) -> None:
+    def __init__(self, population_fitnesses:tuple[float], sum_of_fitnesses:float=None, maximize:bool=True, **kwargs) -> None:
         """Initialize the parameters for truncation selection with replacement.
 
         Args:
@@ -19,10 +22,10 @@ class Truncation:
             sum_of_fitnesses (float): The sum of the populations' fitness scores.
             maximize (bool): (False)[minimize]; (True)[maximize]. Default True.
             pop_size (int): The size of the population.
-            tao (float): The cut-line. i.e., Select only from top tao%.
+            tao (float): The cut-line. i.e., Select only from top tao%. 
         """
         assert population_fitnesses is not None
-        assert kwargs['tao'] is not None and kwargs['tao'] > 0 and kwargs['tao'] < 1
+        assert 'tao' in kwargs.keys() and type(kwargs['tao']) is float and kwargs['tao'] > 0 and kwargs['tao'] < 1
         self.population_fitnesses = population_fitnesses
         self.sum_of_fitnesses = sum_of_fitnesses
         self.maximize = maximize
@@ -50,11 +53,11 @@ class Truncation:
         sorted_keep_indices.sort(key=lambda x:x[1], reverse=self.maximize)
         return sorted_keep_indices[:int(self.pop_size * self.tao)]
 
-    def _sample_from_top_tao(self, top_tao) -> tuple[int]:
+    def _sample_from_top_tao(self, top_tao:list[tuple]) -> tuple[int]:
         """Generate a new index-defined population by stochastic choice based on the given members.
 
         Args:
-            top_tao (tuple of tuple): Pool of members available for sampling.
+            top_tao (list of tuple): Pool of members available for sampling.
 
         Returns:
             tuple of int: A population-sized list containing indices of chosen individuals.
@@ -62,5 +65,5 @@ class Truncation:
         return tuple(random.choice(top_tao)[0] for i in range(self.pop_size))
 
     @staticmethod
-    def parameters() -> dict:
-        return {'tao': ['Enter Tao (top percent cut-line)', 0.4]}
+    def parameters() -> dict[str:tuple]:
+        return {'tao': ('Enter Tao (top percent cut-line)', 0.4)}

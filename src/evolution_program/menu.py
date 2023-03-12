@@ -4,10 +4,10 @@ import random
 import time
 
 from evolution_program.ga import GA
+from evolution_program.selection_mechanism.mechanism import SelectionMechanism
 from evolution_program.selection_mechanism.proportional import Proportional
 from evolution_program.selection_mechanism.ranking import LinearRanking
-from evolution_program.selection_mechanism.tournament import DeterministicTournament
-from evolution_program.selection_mechanism.tournament import StochasticTournament
+from evolution_program.selection_mechanism.tournament import DeterministicTournament, StochasticTournament
 from evolution_program.selection_mechanism.truncation import Truncation
 
 
@@ -17,7 +17,7 @@ class GAMenu(object):
         """Concept loosely based on: https://chunkofcode.net/how-to-implement-a-dynamic-command-line-menu-in-python/"""
         pass
 
-    def selection_mechanism_menu(self) -> type:
+    def selection_mechanism_menu(self) -> SelectionMechanism:
         print('''
 =================================
 Selection Mechanisms
@@ -41,12 +41,37 @@ Selection Mechanisms
             LinearRanking
         ][ans]
 
-    def prompt_int(self, name, default) -> int:
-        """Prompt for an integer value."""
+    def input_display(self, name:str, default=None) -> str:
+        """Generate the string to be displayed in an prompt.
+
+        Args:
+            name (str): The prompt name.
+            default (str, optional): The default value if no answer provided.
+
+        Returns:
+            str: The string to be used in an input prompt.
+        """
+        if default is not None:
+            return f'''=================================
+{name} [{default}]: '''
+        else:
+            return f'''=================================
+{name}: '''
+
+    def prompt_int(self, name:str, default:int=None) -> int:
+        """Prompt for an integer value.
+        
+        Args:
+            name (str): The prompt name.
+            default (int, optional): The default value if no answer provided.
+
+        Returns:
+            int: The user-provided input.
+        """
+        assert default is None or type(default) is int
         ans = ''
         while len(ans) == 0:
-            ans = input(f'''=================================
-{name} [{default}]: ''')
+            ans = input(self.input_display(name, default))
             if ans == '' and default is not None:
                 return default
             try:
@@ -54,12 +79,20 @@ Selection Mechanisms
             except ValueError:
                 ans = ''
 
-    def prompt_float(self, name, default) -> float:
-        """Prompt for an integer value."""
+    def prompt_float(self, name:str, default:float=None) -> float:
+        """Prompt for a float value.
+        
+        Args:
+            name (str): The prompt name.
+            default (float, optional): The default value if no answer provided.
+
+        Returns:
+            float: The user-provided input.
+        """
+        assert default is None or type(default) is float
         ans = ''
         while len(ans) == 0:
-            ans = input(f'''=================================
-{name} [{default}]: ''')
+            ans = input(self.input_display(name, default))
             if ans == '' and default is not None:
                 return default
             try:
@@ -67,12 +100,21 @@ Selection Mechanisms
             except ValueError:
                 ans = ''
 
-    def prompt_bool(self, name, default) -> bool:
+    def prompt_bool(self, name:str, default:bool=None) -> bool:
+        """Prompt for a bool value.
+        
+        Args:
+            name (str): The prompt name.
+            default (bool, optional): The default value if no answer provided.
+
+        Returns:
+            bool: The user-provided input.
+        """
+        assert default is None or type(default) is bool
         ans = ''
         while len(ans) == 0 or ans[0] not in 'YyNn':
-            ans = input(f'''=================================
-{name}? [{default}]: ''')
-            if ans == '' and default is not None:
+            ans = input(self.input_display(name, default))
+            if ans == '' and default is not None and default:
                 ans = 'Y'
         return ans[0].upper() == 'Y'
 
@@ -90,7 +132,7 @@ Selection Mechanisms
                     domain_upper=self.prompt_float('Domain Upper Bound', 4.0),
                     pop_size=self.prompt_int('Population Size', 30),
                     rand_seed=self.prompt_int('Random Seed', random.randint(1, 123456789)),
-                    maximize=self.prompt_bool('Maximize', 'Y'),
+                    maximize=self.prompt_bool('Maximize', True),
                     Select_Mechanism=Select_Mechanism,
                     selection_parameters=selection_parameters
                 )

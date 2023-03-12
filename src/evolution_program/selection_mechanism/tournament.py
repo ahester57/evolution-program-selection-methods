@@ -1,7 +1,10 @@
 # ahester57
 
 
-class DeterministicTournament:
+from evolution_program.selection_mechanism.mechanism import SelectionMechanism
+
+
+class DeterministicTournament(SelectionMechanism):
     """Facilitates deterministic tournament selection.
 
     Attributes:
@@ -18,7 +21,6 @@ class DeterministicTournament:
             population_fitnesses (tuple of float): The population fitness scores, in order.
             sum_of_fitnesses (float): The sum of the populations' fitness scores.
             maximize (bool): (False)[minimize]; (True)[maximize]. Default True.
-            pop_size (int): The size of the population.
         """
         assert population_fitnesses is not None
         self.population_fitnesses = population_fitnesses
@@ -29,11 +31,11 @@ class DeterministicTournament:
         self.pop_size = len(self.population_fitnesses)
 
     @staticmethod
-    def parameters() -> dict:
+    def parameters() -> dict[str:tuple]:
         return {}
 
 
-class StochasticTournament:
+class StochasticTournament(SelectionMechanism):
     """Facilitates stochastic tournament selection.
 
     Attributes:
@@ -51,11 +53,10 @@ class StochasticTournament:
             population_fitnesses (tuple of float): The population fitness scores, in order.
             sum_of_fitnesses (float): The sum of the populations' fitness scores.
             maximize (bool): (False)[minimize]; (True)[maximize]. Default True.
-            pop_size (int): The size of the population.
             prob (float): The probability that the fittest individual wins the round.
         """
         assert population_fitnesses is not None
-        assert kwargs['prob'] is not None and kwargs['prob'] > 0 and kwargs['prob'] < 1
+        assert 'prob' in kwargs.keys() and kwargs['prob'] > 0 and kwargs['prob'] < 1
         self.population_fitnesses = population_fitnesses
         self.sum_of_fitnesses = sum_of_fitnesses
         self.maximize = maximize
@@ -65,5 +66,5 @@ class StochasticTournament:
         self.pop_size = len(self.population_fitnesses)
 
     @staticmethod
-    def parameters() -> dict:
-        return {'prob': ['Enter Probability of Fittest Winner', 0.9]}
+    def parameters() -> dict[str:tuple]:
+        return {'prob': ('Enter Probability of Fittest Winner', 0.9)}

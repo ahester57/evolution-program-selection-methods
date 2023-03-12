@@ -2,8 +2,10 @@
 
 import random
 
+from evolution_program.selection_mechanism.mechanism import SelectionMechanism
 
-class Proportional:
+
+class Proportional(SelectionMechanism):
     """Facilitates proportional selection with replacement.
 
     Attributes:
@@ -63,5 +65,5 @@ class Proportional:
         return tuple(random.choices(range(self.pop_size), weights=pmf, k=self.pop_size))
 
     @staticmethod
-    def parameters() -> dict:
+    def parameters() -> dict[str:tuple]:
         return {}
