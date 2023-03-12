@@ -1,6 +1,11 @@
-import sys
 
 from evolution_program.ga import GA
+from evolution_program.selection_mechanism.proportional import Proportional
+from evolution_program.selection_mechanism.ranking import LinearRanking
+from evolution_program.selection_mechanism.tournament import DeterministicTournament
+from evolution_program.selection_mechanism.tournament import StochasticTournament
+from evolution_program.selection_mechanism.truncation import Truncation
+
 
 
 class GAMenu(object):
@@ -9,122 +14,61 @@ class GAMenu(object):
         """Concept loosely based on: https://chunkofcode.net/how-to-implement-a-dynamic-command-line-menu-in-python/"""
         pass
 
-    def do_0(self) -> None:
-        """Quit
+    def print_selection_mechanism_menu(self) -> type:
+        print('''
+=================================
+Selection Mechanism
+=================================
+    1 - Proportional
+    2 - Truncation
+    3 - Tournament (Deterministic)
+    4 - Tournament (Stochastic)
+    5 - Linear Ranking
+=================================
+''')
+        ans = -1
+        while ans not in range(1, 6):
+            ans = self.prompt_int('Which mechanism?', None)
+        return [
+            None,
+            Proportional,
+            Truncation,
+            DeterministicTournament,
+            StochasticTournament,
+            LinearRanking
+        ][ans]
 
-        Raises:
-            SystemExit: always
+    def prompt_int(self, name, default) -> int:
+        """Prompt for an integer value.
         """
-        sys.exit(0)
+        ans = ''
+        while len(ans) == 0:
+            ans = input(f'{name} [{default}]: ')
+            if ans == '' and default is not None:
+                return default
+            try:
+                return int(ans)
+            except ValueError:
+                ans = ''
 
-    def do_1(self) -> int:
-        """Login
-        """
-        print('''
----------------
-Logging in...
----------------
-''')
-        print('''
-=================================
-Login Menu (name | uuid)
-=================================''')
-        for i, m in enumerate(self.library_service.get_library_members()):
-            print(f'    {i + 1} - {m.get_name()} | {m.get_uuid()}')
-        print('''
-    0 - Quit
-=================================
-
-Make a choice.
-''')
-        return 1
-
-    def do_2(self) -> int:
-        """Look at books
-        """
-        print('''
----------------
-Looking at Books.
----------------
-''')
-        print('''
-=================================
-Book Menu (title | author | year)
-=================================''')
-        for i, b in enumerate(self.library_service.get_library_books()):
-            print(f'    {i + 1} - {b.get_title()} | {b.get_author()} | {b.get_year_of_publication()}')
-        print('''
-    0 - Quit
-=================================
-
-Make a choice.
-''')
-        return 2
-
-    def do_3(self) -> int:
-        """Look at journals
-        """
-        print('''
----------------
-Looking at Journals.
----------------
-''')
-        print('''
-=================================
-Journal Menu (title | author | year)
-=================================''')
-        for i, j in enumerate(self.library_service.get_library_journals()):
-            print(f'    {i + 1} - {j.get_title()} | {j.get_author()} | {j.get_year_of_publication()}')
-        print('''
-    0 - Quit
-=================================
-
-Make a choice.
-''')
-        return 3
-
-
-    def do_a_thing(self, thing: int) -> int:
-        do_name = f'do_{thing}'
-        try:
-            do_func = self.__getattribute__(do_name)
-        except AttributeError:
-            do_func = lambda x = thing : x
-        return do_func()
-
-    def print_library_menu(self) -> None:
-        print('''
-=================================
-Library Menu
-=================================
-    1 - Login
-    2 - Look at Books
-    3 - Look at Journals
-    4 - Make a Return
-    0 - Quit
-=================================
-
-Make a choice.
-''')
-        
-    def prompt_maximize(self) -> bool:
+    def prompt_bool(self, name, default) -> bool:
         ans = ''
         while len(ans) == 0 or ans[0] not in 'YyNn':
-            ans = input("Maximize [Y/n]: ")
-            if ans == '':
+            ans = input(f'{name}? [{default}]: ')
+            if ans == '' and default is not None:
                 ans = 'Y'
         return ans[0].upper() == 'Y'
 
     def configure_ga(self) -> GA:
         while True:
             try:
-                l = GA(
-                    dims=2,
+                return GA(
+                    dims=self.prompt_int('Dimensions', 2),
                     domain_lower=-7.0,
                     domain_upper=4.0,
-                    pop_size=30,
-                    maximize=self.prompt_maximize()
+                    pop_size=self.prompt_int('Population Size', 30),
+                    maximize=self.prompt_bool('Maximize', 'Y'),
+                    selection_mechanism=self.print_selection_mechanism_menu()
                 )
-                return l
             except Exception as e:
                 print(f'Exception {e.args} occurred in {self.__class__}.enter_menu')

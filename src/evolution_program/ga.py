@@ -27,6 +27,7 @@ class GA:
         population (Population): Collection of current generation's individual chromosomes.
         fitness_function (lambda): The "fitness function" or "objective function."
         maximize (bool): (False)[minimize]; (True)[maximize]. Default True.
+        selection_mechanism (type): The selected selection mechanism. Default Proportional.
     """
 
     def __init__(
@@ -40,7 +41,8 @@ class GA:
         t_max=50,
         rand_seed=None,
         fitness_function=lambda genes : sum([x**2 for x in genes]),
-        maximize=True
+        maximize=True,
+        selection_mechanism=Proportional
     ) -> None:
         """
         Initialize the parameters for a genetic algorithm.
@@ -56,6 +58,7 @@ class GA:
             rand_seed(int, optional): Seed for random number generator.
             fitness_function (lambda, optional): Function of \vec{x}. Returns (float).
             maximize (bool, optional): (False)[minimize]; (True)[maximize]. Default True.
+            selection_mechanism (type): The selected selection mechanism. Default Proportional.
         """
         assert dims > 0
         assert pop_size > 0
