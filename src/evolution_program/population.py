@@ -2,7 +2,7 @@
 
 from collections import deque
 
-from chromosome import Chromosome
+from evolution_program.chromosome import Chromosome
 
 
 class Population:
@@ -39,13 +39,11 @@ class Population:
         if self._high_of is not None:
             return self._high_of
         assert self.evaluated
-        index = None
         high_fitness = 0
-        for i, c in enumerate(self.members):
+        for c in self.members:
             if c.fitness_score > high_fitness:
                 high_fitness = c.fitness_score
-                index = i
-        self._high_of = self.members[index]
+                self._high_of = c
         return self._high_of
 
     @property
@@ -53,13 +51,11 @@ class Population:
         if self._low_of is not None:
             return self._low_of
         assert self.evaluated
-        index = None
         low_fitness = float('inf')
-        for i, c in enumerate(self.members):
+        for c in self.members:
             if c.fitness_score < low_fitness:
                 low_fitness = c.fitness_score
-                index = i
-        self._low_of = self.members[index]
+                self._low_of = c
         return self._low_of
 
     @property

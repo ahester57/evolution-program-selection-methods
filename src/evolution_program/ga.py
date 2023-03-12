@@ -5,9 +5,9 @@ import time
 
 from collections import deque
 
-from chromosome import Chromosome
-from population import Population
-from selection_mechanism.proportional import Proportional
+from evolution_program.chromosome import Chromosome
+from evolution_program.population import Population
+from evolution_program.selection_mechanism.proportional import Proportional
 
 
 class GA:
