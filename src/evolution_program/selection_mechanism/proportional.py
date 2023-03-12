@@ -12,7 +12,7 @@ class Proportional:
         maximize (bool): (False)[minimize]; (True)[maximize]. Default True.
         pop_size (int): The size of the population.
     """
-    def __init__(self, population_fitnesses, sum_of_fitnesses=None, maximize=True) -> None:
+    def __init__(self, population_fitnesses, sum_of_fitnesses=None, maximize=True, **kwargs) -> None:
         """
         Initialize the parameters for proportional selection with replacement.
 
@@ -62,3 +62,6 @@ class Proportional:
             pmf = [tw / sum_inv_pmf for tw in inv_pmf]
         return tuple(random.choices(range(self.pop_size), weights=pmf, k=self.pop_size))
 
+    @staticmethod
+    def parameters() -> dict:
+        return {}

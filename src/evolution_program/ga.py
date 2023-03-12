@@ -1,6 +1,7 @@
 # ahester57
 
 import random
+import sys
 import time
 
 from collections import deque
@@ -28,6 +29,7 @@ class GA:
         fitness_function (lambda): The "fitness function" or "objective function."
         maximize (bool): (False)[minimize]; (True)[maximize]. Default True.
         Select_Mechanism (type): The selected selection mechanism. Default Proportional.
+        selection_parameters (dict): The selected selection mechanism parameters.
     """
 
     def __init__(
@@ -42,7 +44,8 @@ class GA:
         rand_seed=None,
         fitness_function=lambda genes : sum([x**2 for x in genes]),
         maximize=True,
-        Select_Mechanism=Proportional
+        Select_Mechanism=Proportional,
+        selection_parameters={}
     ) -> None:
         """
         Initialize the parameters for a genetic algorithm.
@@ -59,6 +62,7 @@ class GA:
             fitness_function (lambda, optional): Function of \vec{x}. Returns (float).
             maximize (bool, optional): (False)[minimize]; (True)[maximize]. Default True.
             Select_Mechanism (type): The selected selection mechanism. Default Proportional.
+            selection_parameters (dict, optional): The selected selection mechanism parameters.
         """
         assert dims > 0
         assert pop_size > 0
@@ -80,6 +84,7 @@ class GA:
         self.fitness_function = fitness_function
         self.maximize = maximize
         self.Select_Mechanism = Select_Mechanism
+        self.selection_parameters = selection_parameters
         self.rand_seed = None
         self.seed_random(rand_seed)
 
@@ -113,7 +118,11 @@ class GA:
         Returns:
             tuple of Chromosome: A new population after a round of selection.
         """
-        mechanism = self.Select_Mechanism(tuple(c.fitness_score for c in self.population.members), self.population.sum_of_fitnesses, self.maximize)
+        try:
+            mechanism = self.Select_Mechanism(tuple(c.fitness_score for c in self.population.members), self.population.sum_of_fitnesses, self.maximize, **self.selection_parameters)
+        except NotImplementedError:
+            print('Provided Select_Mechanism not supported.')
+            sys.exit(1)
         return tuple(self.population.members[i] for i in mechanism.next_population())
 
     def single_point_crossover(self, population) -> tuple[Chromosome]:
