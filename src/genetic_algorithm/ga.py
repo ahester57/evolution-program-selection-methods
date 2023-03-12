@@ -6,7 +6,8 @@ import time
 from collections import deque
 
 from chromosome import Chromosome
-from selection_mechanism import proportional
+from population import Population
+from selection_mechanism.proportional import Proportional
 
 
 class GA:
@@ -23,7 +24,7 @@ class GA:
         p_m (float): Probability of mutation. In range [0, 1]. Defaults to 0.1.
         t_max (int): Maximum iterations/generations. Defaults to 50.
         rand_seed (int): Seed given to RNG calculated from parameters.
-        population (tuple of Chromosome): Collection of current generation's individual chromosomes.
+        population (Population): Collection of current generation's individual chromosomes.
         fitness_function (lambda): The "fitness function" or "objective function."
         maximize (bool): (False)[minimize]; (True)[maximize]. Default True.
     """
@@ -80,8 +81,8 @@ class GA:
 
     def simulate(self) -> None:
         """Simulate the genetic algorithm with configured parameters."""
-        self.population = self.create_initial_population()
-        self.population = self.evaluate_population()
+        self.initialize_population()
+        self.evaluate_population()
         deque((self.iterate() for _ in range(self.t_max)), maxlen=0) # execute generator
 
     def iterate(self) -> None:
@@ -90,17 +91,17 @@ class GA:
         if self.t > self.t_max:
             return
         self.population = self.create_next_population()
-        self.population = self.evaluate_population()
+        self.evaluate_population()
         if self.t % 10 == 0 or self.t == self.t_max:
-            self.print_fitness_values()
+            self.print_stats()
 
-    def create_next_population(self) -> tuple[Chromosome]:
+    def create_next_population(self) -> Population:
         """Perform selection, crossover, and mutation on the population.
 
         Returns:
-            tuple of Chromosome: The proposed next generation of the population.
+            Population: The proposed next generation of the population.
         """
-        return self.gene_wise_mutation(self.single_point_crossover(self.selection_mechanism()))
+        return Population(self.gene_wise_mutation(self.single_point_crossover(self.selection_mechanism())))
 
     def selection_mechanism(self) -> tuple[Chromosome]:
         """Perform selection on the population.
@@ -108,9 +109,9 @@ class GA:
         Returns:
             tuple of Chromosome: A new population after a round of selection.
         """
-        Chosen_Mechanism = [proportional.Proportional][0]
-        mechanism = Chosen_Mechanism(tuple(c.fitness_score for c in self.population), self.sum_of_population_fitness, self.maximize)
-        return tuple(self.population[i] for i in mechanism.next_population())
+        Chosen_Mechanism = [Proportional][0]
+        mechanism = Chosen_Mechanism(tuple(c.fitness_score for c in self.population.members), self.population.sum_of_fitnesses, self.maximize)
+        return tuple(self.population.members[i] for i in mechanism.next_population())
 
     def single_point_crossover(self, population) -> tuple[Chromosome]:
         """Perform single cut-point crossover on the population using self.p_c as probability of occurrence.
@@ -156,42 +157,31 @@ class GA:
             next_gen.append(Chromosome(tuple(next_chromosome)))
         return tuple(next_gen)
 
-    def evaluate_population(self) -> tuple[Chromosome]:
+    def evaluate_population(self) -> None:
         """Evaluate an entire iteration/generation's population.
         
         Track fitness scores using a tuple containing (index, fitness_score).
-
-        Returns:
-            tuple of Chromosome: The population sorted by fitness.
         """
-        self.reset_population_properties()
-        deque((c.evaluate(self.fitness_function) for c in self.population), maxlen=0) # execute the generator
-        return tuple(
-            sorted(
-                self.population,
-                key=lambda x:x.fitness_score,
-                reverse=self.maximize)
-        )
+        self.population.evaluate(self.fitness_function)
 
-    def create_initial_population(self) -> tuple[Chromosome]:
+    def initialize_population(self) -> None:
         """
         Initialize a population for the GA within configured parameters.
         
         This can only happen when there is no current population.
-
-        Returns:
-            tuple of Chromosome: The population of self.pop_size members.
         """
         if self.population is not None:
             raise RuntimeError('Population already initialized')
-        return tuple(
-            Chromosome(
-                tuple(
-                    random.uniform(self.domain_lower, self.domain_upper)
-                    for _ in range(self.dims)
+        self.population = Population(
+            tuple(
+                Chromosome(
+                    tuple(
+                        random.uniform(self.domain_lower, self.domain_upper)
+                        for _ in range(self.dims)
+                    )
                 )
+                for _ in range(self.pop_size)
             )
-            for _ in range(self.pop_size)
         )
 
     def seed_random(self, given_seed=None) -> None:
@@ -214,59 +204,19 @@ class GA:
         print(f'Seeding random with {self.rand_seed}')
         random.seed(self.rand_seed)
 
-    def print_fitness_values(self) -> None:
+    def print_stats(self) -> None:
         print(f'----------- Gen. {self.t} ---------------')
-        print(f'Best  Fitness: {self.best_of_population.fitness_score} by {self.best_of_population.alleles}')
-        print(f'Worst Fitness: {self.worst_of_population.fitness_score} by {self.worst_of_population.alleles}')
-        print(f'Avg   Fitness: {self.average_population_fitness}')
+        print(f'High  Fitness: {self.population.high_score.fitness_score} by {self.population.high_score.alleles}')
+        print(f'Low   Fitness: {self.population.low_score.fitness_score} by {self.population.low_score.alleles}')
+        print(f'Avg   Fitness: {self.population.average_fitness}')
 
     @property
-    def best_of_population(self) -> Chromosome:
-        if self._best_of_population is not None:
-            return self._best_of_population
-        assert self._population[0].fitness_score is not None
-        self._best_of_population = self.population[0]
-        return self._best_of_population
-
-    @property
-    def worst_of_population(self) -> Chromosome:
-        if self._worst_of_population is not None:
-            return self._worst_of_population
-        assert self._population[-1].fitness_score is not None
-        self._worst_of_population = self.population[-1]
-        return self._worst_of_population
-
-    @property
-    def average_population_fitness(self) -> float:
-        if self._average_population_fitness is not None:
-            return self._average_population_fitness
-        assert self._population[0].fitness_score is not None
-        self._average_population_fitness = self.sum_of_population_fitness / len(self.population)
-        return self._average_population_fitness
-
-    @property
-    def sum_of_population_fitness(self) -> float:
-        """\sum_{j=1}^N{f_j}"""
-        if self._sum_of_population_fitness is not None:
-            return self._sum_of_population_fitness
-        assert self._population[0].fitness_score is not None
-        self._sum_of_population_fitness = sum(c.fitness_score for c in self.population)
-        return self._sum_of_population_fitness
-
-    def reset_population_properties(self) -> None:
-        """Called when re-evaluating the population to get latest stats when using above properties."""
-        self._best_of_population = None
-        self._worst_of_population = None
-        self._average_population_fitness = None
-        self._sum_of_population_fitness = None
-
-    @property
-    def population(self) -> tuple[Chromosome]:
+    def population(self) -> Population:
         return self._population
 
     @population.setter
     def population(self, value) -> None:
-        assert (value is None and self.pop_size is not None) or len(value) == self.pop_size
+        assert (value is None and self.pop_size is not None) or len(value.members) == self.pop_size
         self._population = value
 
 
