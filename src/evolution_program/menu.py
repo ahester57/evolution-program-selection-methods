@@ -1,3 +1,7 @@
+# ahester57
+
+import random
+import time
 
 from evolution_program.ga import GA
 from evolution_program.selection_mechanism.proportional import Proportional
@@ -5,7 +9,6 @@ from evolution_program.selection_mechanism.ranking import LinearRanking
 from evolution_program.selection_mechanism.tournament import DeterministicTournament
 from evolution_program.selection_mechanism.tournament import StochasticTournament
 from evolution_program.selection_mechanism.truncation import Truncation
-
 
 
 class GAMenu(object):
@@ -62,13 +65,15 @@ Selection Mechanism
     def configure_ga(self) -> GA:
         while True:
             try:
+                random.seed(time.time())
                 return GA(
                     dims=self.prompt_int('Dimensions', 2),
                     domain_lower=-7.0,
                     domain_upper=4.0,
                     pop_size=self.prompt_int('Population Size', 30),
+                    rand_seed=self.prompt_int('Random Seed', random.randint(1, 123456789)),
                     maximize=self.prompt_bool('Maximize', 'Y'),
-                    selection_mechanism=self.print_selection_mechanism_menu()
+                    Select_Mechanism=self.print_selection_mechanism_menu()
                 )
             except Exception as e:
                 print(f'Exception {e.args} occurred in {self.__class__}.enter_menu')
