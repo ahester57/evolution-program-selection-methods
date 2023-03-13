@@ -1,5 +1,8 @@
 # ahester57
 
+import random
+
+from collections import deque
 
 from evolution_program.selection_mechanism.mechanism import SelectionMechanism
 
@@ -29,6 +32,35 @@ class DeterministicTournament(SelectionMechanism):
         if self.sum_of_fitnesses is None:
             self.sum_of_fitnesses = sum(population_fitnesses)
         self.pop_size = len(self.population_fitnesses)
+
+    def next_population(self) -> tuple[int]:
+        """Perform deterministic tournament selection on the population.
+
+        Returns:
+            tuple of int: An index-defined population after a round of deterministic tournament selection.
+        """
+        next_pop = []
+        deque((next_pop.append(self._compete(self._choice(), self._choice())) for i in range(self.pop_size)), maxlen=0)
+        return tuple(next_pop)
+
+    def _choice(self) -> int:
+        """Generate a random number representing the index of the chosen individual."""
+        return random.choice(range(self.pop_size))
+
+    def _compete(self, one:int, two:int) -> int:
+        """Head-to-head combat between two individuals.
+
+        Args:
+            one (int): Index of first contender.
+            one (int): Index of second contender.
+
+        Returns:
+            int: Index of winner.
+        """
+        result = self.population_fitnesses[one] > self.population_fitnesses[two]
+        if self.maximize:
+            return result
+        return not result
 
     @staticmethod
     def parameters() -> dict[str, tuple]:
@@ -64,6 +96,37 @@ class StochasticTournament(SelectionMechanism):
         if self.sum_of_fitnesses is None:
             self.sum_of_fitnesses = sum(population_fitnesses)
         self.pop_size = len(self.population_fitnesses)
+
+    def next_population(self) -> tuple[int]:
+        """Perform deterministic tournament selection on the population.
+
+        Returns:
+            tuple of int: An index-defined population after a round of deterministic tournament selection.
+        """
+        next_pop = []
+        deque((next_pop.append(self._compete(self._choice(), self._choice())) for i in range(self.pop_size)), maxlen=0)
+        return tuple(next_pop)
+
+    def _choice(self) -> int:
+        """Generate a random number representing the index of the chosen individual."""
+        return random.choice(range(self.pop_size))
+
+    def _compete(self, one:int, two:int) -> int:
+        """Head-to-head combat between two individuals.
+
+        Args:
+            one (int): Index of first contender.
+            one (int): Index of second contender.
+
+        Returns:
+            int: Index of winner.
+        """
+        result = self.population_fitnesses[one] > self.population_fitnesses[two]
+        if random.uniform(0, 1) > self.prob:
+            result = not result
+        if self.maximize:
+            return result
+        return not result
 
     @staticmethod
     def parameters() -> dict[str, tuple]:
