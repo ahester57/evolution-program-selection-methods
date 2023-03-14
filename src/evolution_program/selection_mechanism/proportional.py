@@ -1,5 +1,6 @@
 # ahester57
 
+import numpy as np
 import random
 
 from evolution_program.selection_mechanism.mechanism import SelectionMechanism
@@ -28,7 +29,7 @@ class Proportional(SelectionMechanism):
         self.sum_of_fitnesses = sum_of_fitnesses
         self.maximize = maximize
         if self.sum_of_fitnesses is None:
-            self.sum_of_fitnesses = sum(population_fitnesses)
+            self.sum_of_fitnesses = np.sum(population_fitnesses)
         self.pop_size = len(self.population_fitnesses)
 
     def next_population(self) -> tuple[int]:
@@ -50,7 +51,7 @@ class Proportional(SelectionMechanism):
         if not self.maximize:
             # Minimizing, invert the weights
             inv_pmf = [1.0 / w for w in pmf]
-            sum_inv_pmf = sum(inv_pmf)
+            sum_inv_pmf = np.sum(inv_pmf)
             pmf = tuple(tw / sum_inv_pmf for tw in inv_pmf)
         return pmf
 
@@ -63,7 +64,8 @@ class Proportional(SelectionMechanism):
         Returns:
             tuple of int: A population-sized list containing indices of chosen individuals.
         """
-        return tuple(random.choices(range(self.pop_size), weights=pmf, k=self.pop_size))
+        # de-tuple-fy
+        return tuple(np.random.choice(np.arange(self.pop_size), size=self.pop_size, replace=True, p=pmf))
 
     @staticmethod
     def parameters() -> dict[str, tuple]:

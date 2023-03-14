@@ -1,5 +1,7 @@
 # ahester57
 
+import numpy as np
+
 from collections import deque
 from typing import Callable
 
@@ -76,7 +78,7 @@ class Population:
         if self._sum_of_fitnesses is not None:
             return self._sum_of_fitnesses
         assert self._is_evaluated
-        self._sum_of_fitnesses = sum(c.fitness_score for c in self.members)
+        self._sum_of_fitnesses = np.sum(c.fitness_score for c in self.members)
         return self._sum_of_fitnesses
 
     @property

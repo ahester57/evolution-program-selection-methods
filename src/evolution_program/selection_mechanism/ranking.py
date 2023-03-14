@@ -1,5 +1,6 @@
 # ahester57
 
+import numpy as np
 import random
 
 from evolution_program.selection_mechanism.mechanism import SelectionMechanism
@@ -35,7 +36,7 @@ class LinearRanking(SelectionMechanism):
         self.min = 2 - self.max
         self._max_min = self.max - self.min
         if self.sum_of_fitnesses is None:
-            self.sum_of_fitnesses = sum(population_fitnesses)
+            self.sum_of_fitnesses = np.sum(population_fitnesses)
         self.pop_size = len(self.population_fitnesses)
 
     def next_population(self) -> tuple[int]:
@@ -68,7 +69,7 @@ class LinearRanking(SelectionMechanism):
             er / self.pop_size
             for er in tuple(
                 self.min + (float(rank) / (self.pop_size - 1) * self._max_min)
-                for rank in range(self.pop_size)
+                for rank in np.arange(self.pop_size)
             )
         )
 
@@ -81,7 +82,8 @@ class LinearRanking(SelectionMechanism):
         Returns:
             tuple of int: A population-sized list containing indices of chosen individuals.
         """
-        return tuple(random.choices(range(self.pop_size), weights=pmf, k=self.pop_size))
+        # de-tuple-fy
+        return tuple(np.random.choice(np.arange(self.pop_size), size=self.pop_size, replace=True, p=pmf))
 
     @staticmethod
     def parameters() -> dict[str, tuple]:

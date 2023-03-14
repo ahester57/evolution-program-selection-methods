@@ -130,3 +130,5 @@ dmypy.json
 
 # LaTeX
 *.synctex.gz
+
+.vscode/

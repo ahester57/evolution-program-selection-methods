@@ -1,5 +1,6 @@
 # ahester57
 
+import numpy as np
 import random
 import sys
 import time
@@ -43,7 +44,7 @@ class GA:
         p_m:float=0.1,
         t_max:int=50,
         rand_seed:int=None,
-        fitness_function:Callable=lambda alleles : sum([x**2 for x in alleles]),
+        fitness_function:Callable=lambda alleles : sum([x**2 for x in alleles]), # numpy-ify this?
         maximize:bool=True,
         Select_Mechanism:SelectionMechanism=Proportional,
         selection_parameters:dict={}
@@ -93,7 +94,7 @@ class GA:
         """Simulate the genetic algorithm with configured parameters."""
         self.initialize_population()
         self.evaluate_population()
-        deque((self.iterate() for _ in range(self.t_max)), maxlen=0) # execute generator
+        deque((self.iterate() for _ in np.arange(self.t_max)), maxlen=0) # execute generator
 
     def iterate(self) -> None:
         """Perform one iteration of the simulation."""
@@ -102,7 +103,7 @@ class GA:
             return
         self.population = self.create_next_population()
         self.evaluate_population()
-        if self.t % 10 == 0 or self.t == self.t_max:
+        if np.mod(self.t, 10) == 0 or self.t == self.t_max:
             self.print_stats()
 
     def create_next_population(self) -> Population:
@@ -191,10 +192,10 @@ class GA:
                 Chromosome(
                     tuple(
                         random.uniform(self.domain_lower, self.domain_upper)
-                        for _ in range(self.dims)
+                        for _ in np.arange(self.dims)
                     )
                 )
-                for _ in range(self.pop_size)
+                for _ in np.arange(self.pop_size)
             )
         )
 

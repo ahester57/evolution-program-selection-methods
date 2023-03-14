@@ -8,6 +8,6 @@ class SelectionMechanism:
     def next_population(self) -> tuple[int]:
         raise NotImplementedError
 
-    @property
+    @staticmethod
     def parameters(self) -> dict[str, tuple]:
         raise NotImplementedError
