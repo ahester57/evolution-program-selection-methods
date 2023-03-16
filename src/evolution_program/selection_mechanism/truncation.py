@@ -1,6 +1,6 @@
 # ahester57
 
-import random
+import numpy as np
 
 from evolution_program.selection_mechanism.mechanism import SelectionMechanism
 
@@ -47,10 +47,11 @@ class Truncation(SelectionMechanism):
         Returns:
             list of tuple: A non-population-sized list containing respective indices and fitness scores.
         """
+        # numpy-ify this
         assert self.sum_of_fitnesses > 0
         sorted_keep_indices = [(i, f) for i, f in enumerate(self.population_fitnesses)]
         sorted_keep_indices.sort(key=lambda x:x[1], reverse=self.maximize)
-        return sorted_keep_indices[:int(self.pop_size * self.tao)]
+        return [tt[0] for tt in sorted_keep_indices[:int(self.pop_size * self.tao)]]
 
     def _sample_from_top_tao(self, top_tao:list[tuple]) -> tuple[int]:
         """Generate a new index-defined population by stochastic choice based on the given members.
@@ -61,7 +62,7 @@ class Truncation(SelectionMechanism):
         Returns:
             tuple of int: A population-sized list containing indices of chosen individuals.
         """
-        return tuple(random.choice(top_tao)[0] for i in range(self.pop_size))
+        return np.random.choice(top_tao, size=self.pop_size, replace=True)
 
     @staticmethod
     def parameters() -> dict[str, tuple]:

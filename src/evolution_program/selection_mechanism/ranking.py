@@ -1,7 +1,6 @@
 # ahester57
 
 import numpy as np
-import random
 
 from evolution_program.selection_mechanism.mechanism import SelectionMechanism
 
@@ -54,6 +53,7 @@ class LinearRanking(SelectionMechanism):
         Returns:
             tuple of int: A population-sized list containing original index in order of rank.
         """
+        # numpy-ify this
         assert self.sum_of_fitnesses > 0
         sorted_keep_indices = [(i, f) for i, f in enumerate(self.population_fitnesses)]
         sorted_keep_indices.sort(key=lambda x:x[1], reverse=not self.maximize)
@@ -73,7 +73,7 @@ class LinearRanking(SelectionMechanism):
             )
         )
 
-    def _sample_from_pmf(self, pmf:tuple[float]) -> tuple[int]:
+    def _sample_from_pmf(self, pmf:tuple[float]) -> np.ndarray[np.signedinteger]:
         """Generate a new index-defined population by stochastic choice based on the given ranks.
 
         Args:
@@ -82,8 +82,7 @@ class LinearRanking(SelectionMechanism):
         Returns:
             tuple of int: A population-sized list containing indices of chosen individuals.
         """
-        # de-tuple-fy
-        return tuple(np.random.choice(np.arange(self.pop_size), size=self.pop_size, replace=True, p=pmf))
+        return np.random.choice(self.pop_size, size=self.pop_size, replace=True, p=pmf)
 
     @staticmethod
     def parameters() -> dict[str, tuple]:

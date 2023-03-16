@@ -1,7 +1,6 @@
 # ahester57
 
 import numpy as np
-import random
 
 from collections import deque
 
@@ -88,7 +87,7 @@ class StochasticTournament(DeterministicTournament):
             maximize (bool): (False)[minimize]; (True)[maximize]. Default True.
             prob (float): The probability that the fittest individual wins the round.
         """
-        DeterministicTournament.__init__(self, population_fitnesses, sum_of_fitnesses, maximize, **kwargs)
+        super().__init__(population_fitnesses, sum_of_fitnesses, maximize, **kwargs)
         assert 'prob' in kwargs.keys() and kwargs['prob'] > 0 and kwargs['prob'] < 1
         self.prob = kwargs['prob']
 

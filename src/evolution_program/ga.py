@@ -1,13 +1,13 @@
 # ahester57
 
 import numpy as np
-import random
 import sys
 import time
 
 from collections import deque
 from typing import Callable
 
+import evolution_program.test_functions.simple as simple
 from evolution_program.chromosome import Chromosome
 from evolution_program.population import Population
 from evolution_program.selection_mechanism.mechanism import SelectionMechanism
@@ -44,7 +44,7 @@ class GA:
         p_m:float=0.1,
         t_max:int=50,
         rand_seed:int=None,
-        fitness_function:Callable=lambda alleles : sum([x**2 for x in alleles]), # numpy-ify this?
+        fitness_function:Callable=simple.fn,
         maximize:bool=True,
         Select_Mechanism:SelectionMechanism=Proportional,
         selection_parameters:dict={}
@@ -76,7 +76,7 @@ class GA:
         self.dims = int(dims)
         self.domain_lower = float(domain_lower)
         self.domain_upper = float(domain_upper)
-        self.mutation_standard_deviation = (self.domain_upper - self.domain_lower) / 1000 # where divisor is 10**(precision wanted)
+        self.mutation_standard_deviation = (self.domain_upper - self.domain_lower) / 10000 # where divisor is 10**(precision wanted)
         self.pop_size = int(pop_size)
         self.p_c = float(p_c)
         self.p_m = float(p_m)
@@ -138,17 +138,17 @@ class GA:
             tuple of Chromosome: A new population after a round of single cut-point crossover.
         """
         next_gen = []
-        for i in range(0, self.pop_size, 2):
+        for i in np.arange(0, self.pop_size, step=2):
             p1 = population[i]
             p2 = population[i+1]
-            if random.uniform(0, 1) > self.p_c:
+            if np.random.uniform(0, 1) > self.p_c:
                 # no crossover, send parents to next gen
                 next_gen.append(p1)
                 next_gen.append(p2)
                 continue
-            cut_point = random.randrange(1, self.dims)
-            next_gen.append(Chromosome(tuple(p1.alleles[0:cut_point] + p2.alleles[cut_point:self.dims])))
-            next_gen.append(Chromosome(tuple(p2.alleles[0:cut_point] + p1.alleles[cut_point:self.dims])))
+            cut_point = np.random.randint(1, self.dims)
+            next_gen.append(Chromosome(np.concatenate((p1.alleles[0:cut_point], p2.alleles[cut_point:self.dims]))))
+            next_gen.append(Chromosome(np.concatenate((p2.alleles[0:cut_point], p1.alleles[cut_point:self.dims]))))
         return tuple(next_gen)
 
     def gene_wise_mutation(self, population:tuple[Chromosome]) -> tuple[Chromosome]:
@@ -162,14 +162,14 @@ class GA:
         """
         next_gen = []
         for c in population:
-            next_chromosome = []
-            for a in c.alleles:
-                if random.uniform(0, 1) > self.p_m:
+            next_alleles = np.ndarray(shape=(self.dims), dtype=np.float64)
+            for i, a in enumerate(c.alleles):
+                if np.random.uniform(0, 1) > self.p_m:
                     # no mutation
-                    next_chromosome.append(a)
+                    next_alleles[i] = a
                     continue
-                next_chromosome.append(a + random.normalvariate(0, self.mutation_standard_deviation**2))
-            next_gen.append(Chromosome(tuple(next_chromosome)))
+                next_alleles[i] = a + np.random.normal(0, self.mutation_standard_deviation)
+            next_gen.append(Chromosome(next_alleles))
         return tuple(next_gen)
 
     def evaluate_population(self) -> None:
@@ -190,10 +190,7 @@ class GA:
         self.population = Population(
             tuple(
                 Chromosome(
-                    tuple(
-                        random.uniform(self.domain_lower, self.domain_upper)
-                        for _ in np.arange(self.dims)
-                    )
+                    np.random.uniform(self.domain_lower, self.domain_upper, size=self.dims)
                 )
                 for _ in np.arange(self.pop_size)
             )
@@ -213,11 +210,11 @@ class GA:
         if given_seed is not None:
             self.rand_seed = int(given_seed)
         else:
-            random.seed(time.time())
+            np.random.seed(time.time())
             # seed random using datetime, then export the result of that to re-seed
-            self.rand_seed = random.randint(1, 123456789)
+            self.rand_seed = np.random.randint(1, 123456789)
         print(f'Seeding random with {self.rand_seed}')
-        random.seed(self.rand_seed)
+        np.random.seed(self.rand_seed)
 
     def print_stats(self) -> None:
         print(f'----------- Gen. {self.t} ---------------')

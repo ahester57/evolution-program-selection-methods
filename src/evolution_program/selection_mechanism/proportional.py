@@ -1,7 +1,6 @@
 # ahester57
 
 import numpy as np
-import random
 
 from evolution_program.selection_mechanism.mechanism import SelectionMechanism
 
@@ -55,7 +54,7 @@ class Proportional(SelectionMechanism):
             pmf = tuple(tw / sum_inv_pmf for tw in inv_pmf)
         return pmf
 
-    def _sample_from_pmf(self, pmf:tuple[float]) -> tuple[int]:
+    def _sample_from_pmf(self, pmf:tuple[float]) -> np.ndarray[np.signedinteger]:
         """Generate a new index-defined population by stochastic choice based on the given pmf.
 
         Args:
@@ -64,8 +63,7 @@ class Proportional(SelectionMechanism):
         Returns:
             tuple of int: A population-sized list containing indices of chosen individuals.
         """
-        # de-tuple-fy
-        return tuple(np.random.choice(np.arange(self.pop_size), size=self.pop_size, replace=True, p=pmf))
+        return np.random.choice(self.pop_size, size=self.pop_size, replace=True, p=pmf)
 
     @staticmethod
     def parameters() -> dict[str, tuple]:
