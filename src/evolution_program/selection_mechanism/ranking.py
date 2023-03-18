@@ -53,7 +53,7 @@ class LinearRanking(SelectionMechanism):
         Returns:
             tuple of int: A population-sized list containing original index in order of rank.
         """
-        # numpy-ify this
+        # TODO: numpy-ify this
         assert self.sum_of_fitnesses > 0
         sorted_keep_indices = [(i, f) for i, f in enumerate(self.population_fitnesses)]
         sorted_keep_indices.sort(key=lambda x:x[1], reverse=not self.maximize)
@@ -65,6 +65,7 @@ class LinearRanking(SelectionMechanism):
         Returns:
             list of tuple: A population-sized list containing pmf for this population.
         """
+        # TODO: numpy-ify this
         return tuple(
             er / self.pop_size
             for er in tuple(

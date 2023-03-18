@@ -47,7 +47,7 @@ class Truncation(SelectionMechanism):
         Returns:
             list of tuple: A non-population-sized list containing respective indices and fitness scores.
         """
-        # numpy-ify this
+        # TODO: numpy-ify this
         assert self.sum_of_fitnesses > 0
         sorted_keep_indices = [(i, f) for i, f in enumerate(self.population_fitnesses)]
         sorted_keep_indices.sort(key=lambda x:x[1], reverse=self.maximize)

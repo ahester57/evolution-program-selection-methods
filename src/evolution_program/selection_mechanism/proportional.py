@@ -47,6 +47,7 @@ class Proportional(SelectionMechanism):
         """
         assert self.sum_of_fitnesses > 0
         pmf = tuple(f / self.sum_of_fitnesses for f in self.population_fitnesses)
+        # TODO: numpy-ify this
         if not self.maximize:
             # Minimizing, invert the weights
             inv_pmf = [1.0 / w for w in pmf]

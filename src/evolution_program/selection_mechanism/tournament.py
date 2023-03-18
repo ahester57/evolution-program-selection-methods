@@ -57,10 +57,12 @@ class DeterministicTournament(SelectionMechanism):
         Returns:
             int: Index of winner.
         """
-        result = self.population_fitnesses[one] > self.population_fitnesses[two]
+        result = self.population_fitnesses[one] < self.population_fitnesses[two]
         if self.maximize:
-            return result
-        return not result
+            result = not result
+        if result:
+            return one
+        return two
 
     @staticmethod
     def parameters() -> dict[str, tuple]:
@@ -101,12 +103,14 @@ class StochasticTournament(DeterministicTournament):
         Returns:
             int: Index of winner.
         """
-        result = self.population_fitnesses[one] > self.population_fitnesses[two]
+        result = self.population_fitnesses[one] < self.population_fitnesses[two]
         if np.random.uniform(0, 1) > self.prob:
             result = not result
         if self.maximize:
-            return result
-        return not result
+            result = not result
+        if result:
+            return one
+        return two
 
     @staticmethod
     def parameters() -> dict[str, tuple]:
