@@ -131,8 +131,8 @@ Selection Mechanisms
                     selection_parameters.update({k: self.prompt_float(v[0], v[1])})
                 return GA(
                     dims=self.prompt_int('Dimensions', 2),
-                    domain_lower=self.prompt_float('Domain Lower Bound', -7.0),
-                    domain_upper=self.prompt_float('Domain Upper Bound', 4.0),
+                    domain_lower=self.prompt_float('Domain Lower Bound', -65.536),
+                    domain_upper=self.prompt_float('Domain Upper Bound', 65.536),
                     pop_size=self.prompt_int('Population Size', 30),
                     rand_seed=self.prompt_int('Random Seed', random.randint(1, 123456789)),
                     maximize=self.prompt_bool('Maximize', False),
