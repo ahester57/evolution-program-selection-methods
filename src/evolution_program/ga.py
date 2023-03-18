@@ -7,7 +7,7 @@ import time
 from collections import deque
 from typing import Callable
 
-import evolution_program.test_functions.simple as simple
+import evolution_program.test_functions.de_jong_5 as de_jong_5
 from evolution_program.chromosome import Chromosome
 from evolution_program.population import Population
 from evolution_program.selection_mechanism.mechanism import SelectionMechanism
@@ -44,7 +44,7 @@ class GA:
         p_m:float=0.1,
         t_max:int=50,
         rand_seed:int=None,
-        fitness_function:Callable=simple.fn,
+        fitness_function:Callable=de_jong_5.fn,
         maximize:bool=True,
         Select_Mechanism:SelectionMechanism=Proportional,
         selection_parameters:dict={}
@@ -210,7 +210,7 @@ class GA:
         if given_seed is not None:
             self.rand_seed = int(given_seed)
         else:
-            np.random.seed(time.time())
+            np.random.seed(int(time.time()))
             # seed random using datetime, then export the result of that to re-seed
             self.rand_seed = np.random.randint(1, 123456789)
         print(f'Seeding random with {self.rand_seed}')
